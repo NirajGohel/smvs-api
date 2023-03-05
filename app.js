@@ -15,6 +15,7 @@ mongoose
   .connect(MONGODB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(() => {
     console.log("DB connected!!");
+    app.listen(PORT, () => console.log(`Server up and running`));
   })
   .catch((err) => {
     console.log(Error, err.message);
@@ -73,5 +74,3 @@ app.post("/qrcode/scan", async (req, res) => {
     }
   }
 });
-
-app.listen(PORT, () => console.log(`Server up and running`));
