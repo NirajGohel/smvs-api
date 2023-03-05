@@ -11,15 +11,25 @@ const { MONGODB_URL } = process.env;
 
 mongoose.set("strictQuery", false);
 
-mongoose
-  .connect(MONGODB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
-  .then(() => {
-    console.log("DB connected!!");
-    app.listen(PORT, () => console.log(`Server up and running`));
-  })
-  .catch((err) => {
-    console.log(Error, err.message);
-  });
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(MONGODB_URL);
+    console.log(`MongoDB Connected`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+// mongoose
+//   .connect(MONGODB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
+//   .then(() => {
+//     console.log("DB connected!!");
+//     app.listen(PORT, () => console.log(`Server up and running`));
+//   })
+//   .catch((err) => {
+//     console.log(Error, err.message);
+//   });
 
 app.use(express.json());
 
@@ -73,4 +83,10 @@ app.post("/qrcode/scan", async (req, res) => {
       res.status(400).send(err);
     }
   }
+});
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server up and running`);
+  });
 });
