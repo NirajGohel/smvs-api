@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const User = require("./models/User");
 const Qrcode = require("./models/Qrcode");
@@ -84,6 +85,36 @@ app.post("/qrcode/scan", async (req, res) => {
     }
   }
 });
+
+app.post("/user/signup", async (req, res) => {
+  const user = new User(req.body)
+  user.password = await bcrypt.hash(user.password, 10);
+  user.isAdmin = false;
+
+  try {
+    const savedUser = await user.save();
+    res.send(savedUser);
+  }
+  catch (err) {
+    res.status(400).send(err)
+  }
+})
+
+app.post("/user/login", async (req, res) => {
+  const { mobileNo, password } = req.body;
+  const user = await User.findOne({ mobileNo })
+
+  if (!user) {
+    return res.status(404).json({ message: "User does not exist!", success: false });
+  }
+
+  if (!await bcrypt.compare(password, user.password)) {
+    return res.status(400).json({ message: "Password is incorrect!", success: false });
+  }
+
+  res.status(200).json({ user, success: true });
+
+})
 
 connectDB().then(() => {
   app.listen(PORT, () => {
