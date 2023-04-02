@@ -36,6 +36,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.status(200).send(`API working`));
 
+//#region QRCodes
 app.post("/qrcode/generate", async (req, res) => {
   const qrcode = new Qrcode(req.body);
   qrcode.present = [];
@@ -74,7 +75,9 @@ app.post("/qrcode/scan", async (req, res) => {
   if (!qrcode) res.status(404).send(`QR code not found`);
 
   if (qrcode) {
-    qrcode.present.push(req.body.userid);
+    if (!qrcode.present.includes(req.body.userid)) {
+      qrcode.present.push(req.body.userid);
+    }
 
     try {
       const savedQrcode = await qrcode.save();
@@ -86,6 +89,25 @@ app.post("/qrcode/scan", async (req, res) => {
   }
 });
 
+app.post("/qrcode/get", async (req, res) => {
+  const qrcode = await Qrcode.findOne({ date: req.body.date })
+  if (!qrcode) res.status(404).send(`QR code not found`);
+
+  if (qrcode) {
+    try {
+      const presentUsers = await User.find({ _id: { $in: qrcode.present } })
+      const absentUsers = await User.find({ _id: { $nin: qrcode.present } })
+
+      res.json({ qrcode, presentUsers, absentUsers });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+})
+//#endregion
+
+//#region User
 app.post("/user/signup", async (req, res) => {
   const user = new User(req.body)
   user.password = await bcrypt.hash(user.password, 10);
@@ -115,6 +137,22 @@ app.post("/user/login", async (req, res) => {
   res.status(200).json({ user, success: true });
 
 })
+
+app.post("/user/get", async (req, res) => {
+  const user = await User.findById({ _id: req.body.id })
+
+  if (!user) {
+    return res.status(404).send(`User does not exist!`);
+  }
+
+  user.attendanceData.totalQrCode = await Qrcode.countDocuments();
+  user.attendanceData.presentQrCode = await Qrcode.countDocuments({ present: req.body.id });
+  user.attendanceData.presentDates = await Qrcode.find({ present: { $in: [req.body.id] } }, { date: 1 });
+  user.attendanceData.absentDates = await Qrcode.find({ present: { $nin: [req.body.id] } }, { date: 1 });
+
+  return res.send(user)
+})
+//#endregion
 
 connectDB().then(() => {
   app.listen(PORT, () => {

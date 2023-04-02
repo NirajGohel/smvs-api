@@ -64,7 +64,42 @@ const userSchema = new mongoose.Schema({
 
   occupationDetails: {
     type: String
+  },
+
+  attendanceData: {
+    totalQrCode: {
+      type: Number
+    },
+
+    presentQrCode: {
+      type: Number
+    },
+
+    presentDates: [
+      {
+        _id: {
+          type: mongoose.Types.ObjectId,
+        },
+
+        date: {
+          type: Date
+        }
+      }
+    ],
+
+    absentDates: [
+      {
+        _id: {
+          type: mongoose.Types.ObjectId,
+        },
+
+        date: {
+          type: Date
+        }
+      }
+    ],
   }
+
 });
 
 userSchema.plugin(uniqueValidator);
