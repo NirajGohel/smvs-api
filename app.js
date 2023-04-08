@@ -105,6 +105,16 @@ app.post("/qrcode/get", async (req, res) => {
     }
   }
 })
+
+app.post("/qrcode/getall", async (req, res) => {
+  const qrcodes = await Qrcode.find()
+
+  if (!qrcodes) {
+    return res.status(404).send(`QRCodes does not exist!`);
+  }
+
+  return res.send(qrcodes)
+})
 //#endregion
 
 //#region User
@@ -151,6 +161,16 @@ app.post("/user/get", async (req, res) => {
   user.attendanceData.absentDates = await Qrcode.find({ present: { $nin: [req.body.id] } }, { date: 1 });
 
   return res.send(user)
+})
+
+app.post("/user/getall", async (req, res) => {
+  const users = await User.find()
+
+  if (!users) {
+    return res.status(404).send(`Users does not exist!`);
+  }
+
+  return res.send(users)
 })
 //#endregion
 
