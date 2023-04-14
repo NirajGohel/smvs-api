@@ -38,12 +38,19 @@ app.get("/", (req, res) => res.status(200).send(`API working`));
 
 //#region QRCodes
 app.post("/qrcode/generate", async (req, res) => {
-  const qrcode = new Qrcode(req.body);
-  qrcode.present = [];
-
   try {
-    const savedQrcode = await qrcode.save();
-    res.send(savedQrcode);
+    const qrcodeExists = await Qrcode.findOne({ date: req.body.date })
+
+    if (qrcodeExists) {
+      res.send(qrcodeExists);
+    }
+    else {
+      const qrcode = new Qrcode(req.body);
+      qrcode.present = [];
+
+      const savedQrcode = await qrcode.save();
+      res.send(savedQrcode);
+    }
   } catch (err) {
     res.status(400).send(err);
   }
