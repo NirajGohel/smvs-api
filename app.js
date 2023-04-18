@@ -84,14 +84,16 @@ app.post("/qrcode/scan", async (req, res) => {
   if (qrcode) {
     if (!qrcode.present.includes(req.body.userid)) {
       qrcode.present.push(req.body.userid);
-    }
 
-    try {
-      const savedQrcode = await qrcode.save();
-      res.send(savedQrcode);
-    } catch (err) {
-      console.log(err);
-      res.status(400).send(err);
+      try {
+        const savedQrcode = await qrcode.save();
+        res.status(200).json({ savedQrcode, isPresent: 1 });
+      } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+      }
+    } else {
+      res.status(200).json({ message: "You have already scaned this QR code!!!" })
     }
   }
 });
