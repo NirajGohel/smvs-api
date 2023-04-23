@@ -169,7 +169,7 @@ app.post("/user/get", async (req, res) => {
   user.attendanceData.presentDates = await Qrcode.find({ present: { $in: [req.body.id] } }, { date: 1 });
   user.attendanceData.absentDates = await Qrcode.find({ present: { $nin: [req.body.id] } }, { date: 1 });
 
-  return res.send(user)
+  return res.status(200).json({ user })
 })
 
 app.post("/user/getall", async (req, res) => {
