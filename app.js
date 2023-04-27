@@ -116,7 +116,7 @@ app.post("/qrcode/get", async (req, res) => {
 })
 
 app.post("/qrcode/getall", async (req, res) => {
-  const qrcodes = await Qrcode.find()
+  const qrcodes = await Qrcode.find().sort({ date: -1 })
 
   if (!qrcodes) {
     return res.status(404).send(`QRCodes does not exist!`);
