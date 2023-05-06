@@ -3,12 +3,15 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 
 const User = require("./models/User");
 const Qrcode = require("./models/Qrcode");
 
 const { PORT } = process.env;
 const { MONGODB_URL } = process.env;
+const { EMAIL } = process.env;
+const { PASSWORD } = process.env;
 
 mongoose.set("strictQuery", false);
 
@@ -166,20 +169,94 @@ app.post("/user/get", async (req, res) => {
 
   user.attendanceData.totalQrCode = await Qrcode.countDocuments();
   user.attendanceData.presentQrCode = await Qrcode.countDocuments({ present: req.body.id });
-  user.attendanceData.presentDates = await Qrcode.find({ present: { $in: [req.body.id] } }, { date: 1 });
-  user.attendanceData.absentDates = await Qrcode.find({ present: { $nin: [req.body.id] } }, { date: 1 });
+  user.attendanceData.presentDates = await Qrcode.find({ present: { $in: [req.body.id] } }, { date: 1 }).sort({ date: -1 });
+  user.attendanceData.absentDates = await Qrcode.find({ present: { $nin: [req.body.id] } }, { date: 1 }).sort({ date: -1 });
 
   return res.status(200).json({ user })
 })
 
 app.post("/user/getall", async (req, res) => {
-  const users = await User.find()
+  let users = await User.find()
+  const totalQrCode = await Qrcode.countDocuments();
+
+  for (let user of users) {
+    user.attendanceData.presentQrCode = await Qrcode.countDocuments({ present: user._id });
+  }
 
   if (!users) {
     return res.status(404).send(`Users does not exist!`);
   }
 
-  return res.send(users)
+  return res.json({ totalQrCode, users })
+})
+
+app.post("/user/forgot-password", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).send("User does not exist!");
+
+    var digits = "0123456789";
+    let otp = "";
+    for (let i = 0; i < 6; i++) {
+      otp += digits[Math.floor(Math.random() * 10)];
+    }
+    var message = `Your OTP for Attendance app is ${otp}`;
+
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: EMAIL,
+        pass: PASSWORD,
+      },
+      port: 465,
+      host: 'smtp.gmail.com'
+    });
+
+    // var transporter = nodemailer.createTransport({
+    //   host: 'mail.frontendz.in',
+    //   port: 465,
+    //   secure: true,
+    //   auth: {
+    //     user: EMAIL,
+    //     pass: PASSWORD,
+    //   },
+    // });
+
+    var mailOptions = {
+      from: EMAIL,
+      to: req.body.email,
+      subject: "Forgot password - SMVS Attendance App",
+      text: message,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        return res.send(error);
+      } else {
+        return res.json({ otp });
+      }
+    });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+})
+
+app.put("/user/change-password", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).send("User does not exist!");
+
+    user.password = await bcrypt.hash(req.body.password, 10);
+    const savedUser = await user.save();
+    if (savedUser) {
+      res.json({ isSuccess: true });
+    }
+    else {
+      res.json({ isSuccess: false });
+    }
+  } catch (err) {
+    res.status(400).send(err);
+  }
 })
 //#endregion
 
