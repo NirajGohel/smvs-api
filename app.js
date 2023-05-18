@@ -258,6 +258,42 @@ app.put("/user/change-password", async (req, res) => {
     res.status(400).send(err);
   }
 })
+
+app.put("/user/update", async (req, res) => {
+  try {
+    const { id, mobileNo, email, dob, firstName, lastName, middleName, address, education, occupationDetails } = req.body;
+
+    let user = await User.findById({ _id: id });
+    if (!user) return res.status(404).send("User does not exist!");
+
+    if (user) {
+      if (mobileNo && email && dob && firstName && lastName && middleName && address && education && occupationDetails) {
+        user.mobileNo = mobileNo;
+        user.email = email;
+        user.dob = dob;
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.middleName = middleName;
+        user.address = address;
+        user.education = education;
+        user.occupationDetails = occupationDetails;
+
+        const updatedUser = await user.save();
+        if (updatedUser) {
+          res.json({ isSuccess: true });
+        }
+        else {
+          res.json({ isSuccess: false });
+        }
+      }
+      else {
+        res.json({ isSuccess: false, message: 'Insufficient Parameters' })
+      }
+    }
+  } catch (error) {
+    res.status(400).send(error);
+  }
+})
 //#endregion
 
 connectDB().then(() => {
