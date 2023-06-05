@@ -299,7 +299,7 @@ app.put("/user/update", async (req, res) => {
 
 //#region ClientDetails
 app.post("/client/version", async (req, res) => {
-  const clientDetails = await ClientDetails.find()
+  const clientDetails = await ClientDetails.findOne()
 
   if (!clientDetails) {
     return res.status(404).send(`Client does not exist!`);
