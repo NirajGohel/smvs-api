@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 
 const User = require("./models/User");
 const Qrcode = require("./models/Qrcode");
+const ClientDetails = require("./models/ClientDetails");
 
 const { PORT } = process.env;
 const { MONGODB_URL } = process.env;
@@ -293,6 +294,18 @@ app.put("/user/update", async (req, res) => {
   } catch (error) {
     res.status(400).send(error);
   }
+})
+//#endregion
+
+//#region ClientDetails
+app.post("/client/version", async (req, res) => {
+  const clientDetails = await ClientDetails.find()
+
+  if (!clientDetails) {
+    return res.status(404).send(`Client does not exist!`);
+  }
+
+  return res.send(clientDetails)
 })
 //#endregion
 
