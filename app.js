@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const excelJS = require("exceljs");
+const fs = require('@cyclic.sh/s3fs/promises')
 
 const User = require("./models/User");
 const Qrcode = require("./models/Qrcode");
@@ -164,12 +165,12 @@ app.post("/qrcode/getall", async (req, res) => {
       cell.font = { bold: true };
     });
 
-    const data = await workbook.xlsx.writeFile(`./tmp/report.xlsx`)
+    const data = await workbook.xlsx.writeFile(`./report.xlsx`)
 
     //return res.send(qrcodes)
     res.setHeader('Content-Type', 'application/vnd.ms-excel');
     res.setHeader('Content-Disposition', 'attachment; filename=report.xlsx');
-    return res.sendFile(path.join(__dirname, './tmp/report.xlsx'))
+    return res.sendFile(path.join(__dirname, './report.xlsx'))
   }
 
 

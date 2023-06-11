@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cyclic.sh/s3fs": "^1.2.8",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.3",
     "exceljs": "^4.3.0",
