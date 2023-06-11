@@ -122,8 +122,8 @@ app.post("/qrcode/get", async (req, res) => {
   }
 })
 
-app.post("/qrcode/getall", async (req, res) => {
-  const { createReport, fromDate, toDate } = req.body;
+app.get("/qrcode/getall", async (req, res) => {
+  const { createReport, fromDate, toDate } = req.url;
 
   if (createReport == 0) {
     const qrcodes = await Qrcode.find().sort({ date: -1 })
