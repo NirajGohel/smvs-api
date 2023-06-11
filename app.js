@@ -4,6 +4,8 @@ const app = express();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const path = require("path");
+const excelJS = require("exceljs");
 
 const User = require("./models/User");
 const Qrcode = require("./models/Qrcode");
@@ -120,13 +122,57 @@ app.post("/qrcode/get", async (req, res) => {
 })
 
 app.post("/qrcode/getall", async (req, res) => {
-  const qrcodes = await Qrcode.find().sort({ date: -1 })
+  const { createReport, fromDate, toDate } = req.body;
 
-  if (!qrcodes) {
-    return res.status(404).send(`QRCodes does not exist!`);
+  if (createReport == 0) {
+    const qrcodes = await Qrcode.find().sort({ date: -1 })
+
+    if (!qrcodes) {
+      return res.status(404).send(`QRCodes does not exist!`);
+    }
+
+    return res.send(qrcodes)
+  }
+  else {
+    const qrcodes = await Qrcode.find({ date: { $gte: fromDate, $lte: toDate } })
+    const users = await User.find()
+
+    if (!qrcodes) {
+      return res.status(404).send(`QRCodes does not exist!`);
+    }
+
+    const workbook = new excelJS.Workbook();  // Create a new workbook
+    const worksheet = workbook.addWorksheet("Sheet 1"); // New Worksheet
+
+    worksheet.columns = [
+      { header: 'No', key: 's_no' },
+      { header: 'First Name', key: 'firstName' },
+      { header: 'Middle Name', key: 'middleName' },
+      { header: 'Last Name', key: 'lastName' }
+    ]
+
+    // Looping through User data
+    let counter = 1;
+    users.forEach((user) => {
+      user.s_no = counter;
+      worksheet.addRow(user); // Add data in worksheet
+      counter++;
+    });
+
+    // Making first line in excel bold
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true };
+    });
+
+    const data = await workbook.xlsx.writeFile(`./tmp/report.xlsx`)
+
+    //return res.send(qrcodes)
+    res.setHeader('Content-Type', 'application/vnd.ms-excel');
+    res.setHeader('Content-Disposition', 'attachment; filename=report.xlsx');
+    return res.sendFile(path.join(__dirname, './tmp/report.xlsx'))
   }
 
-  return res.send(qrcodes)
+
 })
 //#endregion
 
@@ -135,6 +181,7 @@ app.post("/user/signup", async (req, res) => {
   const user = new User(req.body)
   user.password = await bcrypt.hash(user.password, 10);
   user.isAdmin = false;
+  user.globalId = "0";
 
   try {
     const savedUser = await user.save();
@@ -262,13 +309,13 @@ app.put("/user/change-password", async (req, res) => {
 
 app.put("/user/update", async (req, res) => {
   try {
-    const { id, mobileNo, email, dob, firstName, lastName, middleName, address, education, occupationDetails } = req.body;
+    const { id, mobileNo, email, dob, firstName, lastName, middleName, address, education, occupationDetails, globalId } = req.body;
 
     let user = await User.findById({ _id: id });
     if (!user) return res.status(404).send("User does not exist!");
 
     if (user) {
-      if (mobileNo && email && dob && firstName && lastName && middleName && address && education && occupationDetails) {
+      if (mobileNo && email && dob && firstName && lastName && middleName && address && education && occupationDetails && globalId) {
         user.mobileNo = mobileNo;
         user.email = email;
         user.dob = dob;
@@ -278,6 +325,7 @@ app.put("/user/update", async (req, res) => {
         user.address = address;
         user.education = education;
         user.occupationDetails = occupationDetails;
+        user.globalId = globalId;
 
         const updatedUser = await user.save();
         if (updatedUser) {
