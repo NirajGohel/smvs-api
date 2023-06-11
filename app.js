@@ -142,7 +142,8 @@ app.post("/qrcode/getall", async (req, res) => {
       return res.status(404).send(`QRCodes does not exist!`);
     }
 
-    const workbook = new excelJS.Workbook();  // Create a new workbook
+    //const workbook = new excelJS.Workbook();  // Create a new workbook
+    const workbook = new excelJS.stream.xlsx.WorkbookWriter({ stream: res })
     const worksheet = workbook.addWorksheet("Sheet 1"); // New Worksheet
 
     worksheet.columns = [
@@ -165,12 +166,16 @@ app.post("/qrcode/getall", async (req, res) => {
       cell.font = { bold: true };
     });
 
-    const data = await workbook.xlsx.writeFile(`./report.xlsx`)
+    worksheet.commit()
+    workbook.commit()
+    //const data = await workbook.xlsx.writeFile(`./report.xlsx`)
 
     //return res.send(qrcodes)
+    res.status(200)
     res.setHeader('Content-Type', 'application/vnd.ms-excel');
     res.setHeader('Content-Disposition', 'attachment; filename=report.xlsx');
-    return res.sendFile(path.join(__dirname, './report.xlsx'))
+
+    //return res.sendFile(path.join(__dirname, './report.xlsx'))
   }
 
 
