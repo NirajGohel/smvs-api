@@ -10,6 +10,11 @@ const clientDetailsSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+
+    url: {
+        type: String,
+        required: true
+    }
 });
 
 module.exports = mongoose.model("clientdetails", clientDetailsSchema);
