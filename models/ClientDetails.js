@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 const clientDetailsSchema = new mongoose.Schema({
     currentVersion: {
-        type: Number,
-        required: true,
+        type: String,
+        required: true
     },
 
     nextVersion: {
-        type: Number,
-        required: true,
+        type: String,
+        required: true
     },
 
     url: {
