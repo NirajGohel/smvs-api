@@ -98,6 +98,10 @@ const userSchema = new mongoose.Schema({
         }
       }
     ],
+  },
+
+  globalId: {
+    type: String
   }
 
 });
