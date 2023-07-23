@@ -102,6 +102,14 @@ const userSchema = new mongoose.Schema({
 
   globalId: {
     type: String
+  },
+
+  centerId: {
+    type: mongoose.Types.ObjectId
+  },
+
+  centerName: {
+    type: String
   }
 
 });
