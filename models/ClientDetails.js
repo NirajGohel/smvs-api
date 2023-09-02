@@ -11,12 +11,12 @@ const clientDetailsSchema = new mongoose.Schema({
         required: true
     },
 
-    andorid_url: {
+    andoridUrl: {
         type: String,
         required: true
     },
 
-    ios_url: {
+    iosUrl: {
         type: String,
         required: true
     }
