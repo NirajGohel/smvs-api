@@ -11,7 +11,7 @@ const clientDetailsSchema = new mongoose.Schema({
         required: true
     },
 
-    andoridUrl: {
+    url: {
         type: String,
         required: true
     },
