@@ -70,4 +70,48 @@ router.post("/getall", async (req, res) => {
     return res.send(qrcodes)
 })
 
+router.post("/report", async (req, res) => {
+    try {
+        const response = []
+        const listOfQrcode = await Qrcode.find({ date: { $gte: req.body.fromDate, $lte: req.body.toDate } })
+        if (!listOfQrcode) return res.status(404).send(`QR code not found`);
+
+        if (listOfQrcode) {
+            if (listOfQrcode.length == 0)
+                return res.send(`No QR code is created in specified date range`)
+
+            for (let q of listOfQrcode) {
+                let presentUsers = await User.find({ _id: { $in: q.present } }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
+                let absentUsers = await User.find({ _id: { $nin: q.present } }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
+
+                for (let p of presentUsers) {
+                    p.firstName = p.firstName.trim()
+                    p.lastName = p.lastName.trim()
+                }
+
+                for (let a of absentUsers) {
+                    a.firstName = a.firstName.trim()
+                    a.lastName = a.lastName.trim()
+                }
+
+                let data = {
+                    date: q.date,
+                    totalCount: presentUsers.length + absentUsers.length,
+                    presentCount: presentUsers.length,
+                    absentCount: absentUsers.length,
+                    presentUsers,
+                    absentUsers
+                }
+
+                response.push(data)
+            }
+
+            return res.send(response)
+        }
+    }
+    catch (error) {
+        return res.status(400).send(error)
+    }
+})
+
 module.exports = router;
