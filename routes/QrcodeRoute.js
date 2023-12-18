@@ -81,17 +81,19 @@ router.post("/report", async (req, res) => {
                 return res.send(`No QR code is created in specified date range`)
 
             for (let q of listOfQrcode) {
-                let presentUsers = await User.find({ _id: { $in: q.present } }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
-                let absentUsers = await User.find({ _id: { $nin: q.present } }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
+                let presentUsers = await User.find({ _id: { $in: q.present }, isAdmin: false }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
+                let absentUsers = await User.find({ _id: { $nin: q.present }, isAdmin: false }, { firstName: 1, lastName: 1, middleName: 1, mobileNo: 1, _id: 0 })
 
                 for (let p of presentUsers) {
                     p.firstName = p.firstName.trim()
                     p.lastName = p.lastName.trim()
+                    p.middleName = p.middleName.trim()
                 }
 
                 for (let a of absentUsers) {
                     a.firstName = a.firstName.trim()
                     a.lastName = a.lastName.trim()
+                    a.middleName = a.middleName.trim()
                 }
 
                 let data = {
