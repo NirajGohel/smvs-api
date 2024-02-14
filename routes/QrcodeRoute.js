@@ -116,4 +116,22 @@ router.post("/report", async (req, res) => {
     }
 })
 
+router.delete("/delete", async (req, res) => {
+    try {
+        let qrcode = await Qrcode.findById({ _id: req.body.id })
+
+        if (qrcode) {
+            let deletedQrcode = await qrcode.deleteOne({ _id: req.body.id })
+
+            if (deletedQrcode)
+                return res.json({ isSuccess: true })
+            else
+                return res.json({ isSuccess: false })
+        } else {
+            return res.json({ isSuccess: false, message: 'QR Code does not exists' })
+        }
+    } catch (error) {
+        return res.status(400).send(error)
+    }
+})
 module.exports = router;
