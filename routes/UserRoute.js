@@ -150,7 +150,7 @@ router.put("/update", async (req, res) => {
         if (!user) return res.status(404).send("User does not exist!");
 
         if (user) {
-            if (mobileNo && email && dob && firstName && lastName && middleName && address && education && occupationDetails) {
+            if (mobileNo && email && dob && firstName && lastName && middleName && address && education) {
                 user.mobileNo = mobileNo;
                 user.email = email;
                 user.dob = dob;
@@ -159,7 +159,7 @@ router.put("/update", async (req, res) => {
                 user.middleName = middleName;
                 user.address = address;
                 user.education = education;
-                user.occupationDetails = occupationDetails;
+                user.occupationDetails = occupationDetails ? occupationDetails : "";
                 user.globalId = globalId;
 
                 const updatedUser = await user.save();
