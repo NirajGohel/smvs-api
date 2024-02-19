@@ -144,13 +144,13 @@ router.put("/change-password", async (req, res) => {
 
 router.put("/update", async (req, res) => {
     try {
-        const { id, mobileNo, email, dob, firstName, lastName, middleName, address, education, occupationDetails, globalId } = req.body;
+        const { id, mobileNo, email, dob, firstName, lastName, middleName, address, education, occupationDetails, globalId, occupation } = req.body;
 
         let user = await User.findById({ _id: id });
         if (!user) return res.status(404).send("User does not exist!");
 
         if (user) {
-            if (mobileNo && email && dob && firstName && lastName && middleName && address && education) {
+            if (mobileNo && email && dob && firstName && lastName && middleName && address && education && occupation) {
                 user.mobileNo = mobileNo;
                 user.email = email;
                 user.dob = dob;
@@ -161,6 +161,7 @@ router.put("/update", async (req, res) => {
                 user.education = education;
                 user.occupationDetails = occupationDetails ? occupationDetails : "";
                 user.globalId = globalId;
+                user.occupation = occupation;
 
                 const updatedUser = await user.save();
                 if (updatedUser) {
