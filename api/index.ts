@@ -32,15 +32,11 @@ app.use("/user", userRouter)
 app.use("/center", centerRouter)
 app.use("/client", clientDetailsRouter)
 
-app.listen(PORT, () => {
-    console.log(`Server up and running`);
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server up and running`);
+    });
 });
-
-// connectDB().then(() => {
-//   app.listen(PORT, () => {
-//     console.log(`Server up and running`);
-//   });
-// });
 
 module.exports = app;
 
