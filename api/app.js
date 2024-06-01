@@ -41,3 +41,5 @@ app.listen(PORT, () => {
 //     console.log(`Server up and running`);
 //   });
 // });
+
+module.exports = app;
