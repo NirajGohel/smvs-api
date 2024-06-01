@@ -32,8 +32,12 @@ app.use("/user", userRouter)
 app.use("/center", centerRouter)
 app.use("/client", clientDetailsRouter)
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server up and running`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server up and running`);
 });
+
+// connectDB().then(() => {
+//   app.listen(PORT, () => {
+//     console.log(`Server up and running`);
+//   });
+// });
