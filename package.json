@@ -2,10 +2,10 @@
   "name": "smvs-api",
   "version": "1.0.0",
   "description": "",
-  "main": "app.ts",
+  "main": "index.ts",
   "scripts": {
-    "start": "node api/app.ts",
-    "dev": "nodemon app.ts"
+    "start": "node api/index.ts",
+    "dev": "nodemon index.ts"
   },
   "keywords": [],
   "author": "",
