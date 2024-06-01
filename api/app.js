@@ -6,10 +6,10 @@ const mongoose = require("mongoose");
 const { PORT } = process.env;
 const { MONGODB_URL } = process.env;
 
-const qrcodeRouter = require("./routes/QrcodeRoute");
-const userRouter = require("./routes/UserRoute");
-const centerRouter = require("./routes/CenterRoute");
-const clientDetailsRouter = require("./routes/ClientDetailsRoute");
+const qrcodeRouter = require("../routes/QrcodeRoute");
+const userRouter = require("../routes/UserRoute");
+const centerRouter = require("../routes/CenterRoute");
+const clientDetailsRouter = require("../routes/ClientDetailsRoute");
 
 mongoose.set("strictQuery", false);
 
